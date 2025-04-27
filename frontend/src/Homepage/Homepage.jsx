@@ -1,13 +1,16 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {Sidebar, Body} from "../Container"
 import {Navbar} from "../Components"
 
 const Homepage = () => {
+  const [searchQuery, setSearchQuery] = useState(''); 
   return (
     <>
     <Navbar/>
-    <Sidebar />
-    <Body />
+    <div className="flex">
+    <Sidebar setSearchQuery={setSearchQuery}/>
+    <Body searchQuery={searchQuery} />
+    </div>
     </>
   )
 }

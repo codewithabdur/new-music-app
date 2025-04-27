@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+
+::selection{
+    background-color: #2bc5b4;
+    color: #fff;
+}
+
+::-webkit-scrollbar {
+    display: none;
+  }
+  
