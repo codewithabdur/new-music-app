@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import oldclient from '../../lib/oldclient'
+import client from '../../lib/client';
 import ReactAudioPlayer from 'react-audio-player';
 import { FaPlay, FaPause } from "react-icons/fa";
 import { GiNextButton, GiPreviousButton  } from "react-icons/gi";
@@ -47,7 +48,7 @@ const Body = ({ searchQuery }) => {
         
     }
     const fetchSongs = (response) => {
-      oldclient
+      client
         .fetch(
           `
       *[_type == "podcast"]{
