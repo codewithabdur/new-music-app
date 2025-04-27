@@ -1,8 +1,14 @@
 import React from 'react'
+import {Sidebar, Body} from "../Container"
+import {Navbar} from "../Components"
 
 const Homepage = () => {
   return (
-    <div>Homepage</div>
+    <>
+    <Navbar/>
+    <Sidebar />
+    <Body />
+    </>
   )
 }
 
