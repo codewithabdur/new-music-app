@@ -20,7 +20,7 @@ const Body = ({ searchQuery }) => {
 
   useEffect(() =>{
     const fetchData = async () =>{
-      oldclient.fetch(`*[_type == "podcast"]{
+      const oldClientData = await oldclient.fetch(`*[_type == "podcast"]{
         title,
         subtitle,
         slug,
@@ -38,18 +38,9 @@ const Body = ({ searchQuery }) => {
         url,
         },
         },
-        }`).then((response) => {
-        setData(response);
-        fetchSongs(response); // Call fetchSongs with the response data
-        }).catch((error) =>{
-          console.error("Error fetching data:", error);
-        })
+        }`)
   
-        
-    }
-    const fetchSongs = (response) => {
-      client
-        .fetch(
+        const clientData = await client.fetch(
           `
       *[_type == "podcast"]{
         title,
@@ -73,18 +64,27 @@ const Body = ({ searchQuery }) => {
       }
       `
         )
-        .then((oldData) => {
-          const combined = [...oldData, ...data]; // Combine directly
-         setData(combined);
-         setFilteredData(combined);
-         setAudioUrl(response[0]?.file?.asset?.url);
-        })
-        .catch((err) => {
-          console.log(err);
+        const combinedData = [...oldClientData, ...clientData];
+      
+        // Set the combined data to state
+        const sortedData = combinedData.sort((a, b) => {
+          if (a.title && b.title) {
+            return a.title.localeCompare(b.title);
+          }
+          return 0; // If title is not available, keep the original order
         });
-      }
-  
-      fetchData()
+    
+        // Set the sorted data to state
+        setData(sortedData);
+        setFilteredData(sortedData);
+    
+        // Set the initial audio URL (if any)
+        setAudioUrl(sortedData[0]?.file?.asset?.url);
+      };
+    
+      fetchData().catch((error) => {
+        console.error("Error fetching data:", error);
+      });
   },[])
 
 
