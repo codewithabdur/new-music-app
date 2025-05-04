@@ -14,6 +14,7 @@ const Body = ({ searchQuery }) => {
   const [filteredData, setFilteredData]= useState([]); // to store filtered songs
   const [audioUrl, setAudioUrl] = useState(null); // State to hold the audio URL
   const [currentImage, setCurrentImage] = useState(null); // State to hold the current image
+  const [currentTitle, setCurrentTitle] = useState(null); // State to hold the current title
   const audioPlayerRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false); // State to manage play/pause
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -103,10 +104,11 @@ const Body = ({ searchQuery }) => {
     }
   }, [searchQuery, data]);
 
-  const handlePlay = (url, index, img) => {
+  const handlePlay = (url, index, img, title) => {
     setAudioUrl(url);
     setCurrentIndex(index);
     setCurrentImage(img); // Set the current image
+    setCurrentTitle(title); // Set the current title
     setIsPlaying(true); // Mark it as playing
   };
 
@@ -136,12 +138,14 @@ const Body = ({ searchQuery }) => {
       setCurrentIndex(nextIndex);
       setAudioUrl(filteredData[nextIndex]?.file?.asset?.url);
       setCurrentImage(filteredData[nextIndex]?.audioimg?.asset?.url); // Set the next image
+      setCurrentTitle(filteredData[nextIndex]?.title); // Set the next title
       setIsPlaying(true);
     } else {
       // If last song, start from the beginning
       setCurrentIndex(0);
       setAudioUrl(filteredData[0]?.file?.asset?.url);
       setCurrentImage(filteredData[0]?.audioimg?.asset?.url); // Set the first image
+      setCurrentTitle(filteredData[0]?.title); // Set the first title
       setIsPlaying(true);
     }
   };
@@ -152,6 +156,7 @@ const Body = ({ searchQuery }) => {
       setCurrentIndex(prevIndex);
       setAudioUrl(filteredData[prevIndex]?.file?.asset?.url);
       setCurrentImage(filteredData[prevIndex]?.audioimg?.asset?.url); // Set the previous image
+      setCurrentTitle(filteredData[prevIndex]?.title); // Set the previous title
       setIsPlaying(true);
     }
   };
@@ -185,6 +190,10 @@ const Body = ({ searchQuery }) => {
     const seconds = Math.floor(time % 60) || 0;
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
+
+  useEffect(() => {
+    window.document.title = `CodeWithAbdur || MelodicVerse - ${currentTitle} Song Your Personalized Music Experience`;
+  },[currentTitle])
   
  
   return (
@@ -232,7 +241,7 @@ const Body = ({ searchQuery }) => {
             }}
       />
       {filteredData.map((item, index) => (
-        <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300" onClick={() => handlePlay(item.file?.asset?.url, index, item.audioimg?.asset?.url)}>
+        <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300" onClick={() => handlePlay(item.file?.asset?.url, index, item.audioimg?.asset?.url, item.title)}>
           <span className='box cursor-pointer'>
           <img src={item.audioimg?.asset?.url} alt={item.title} className="w-full h-[200px] object-cover" />
           <div className="p-4">
@@ -263,6 +272,7 @@ const Body = ({ searchQuery }) => {
           />
         
         </div>
+        <h2 className="text-[10px] text-[#fff] font-semibold mb-2">{currentTitle}</h2> 
         <div className="flex items-center justify-between px-4 ">
   <span className="text-white text-xs">{formatTime(currentTime)}</span>
   <input
