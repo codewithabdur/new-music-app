@@ -10,6 +10,7 @@ const Sidebar = ({ setSearchQuery }) => {
     e.preventDefault();
     setSearchQuery(localSearch); // Send the search term to parent
     setLocalSearch('');
+    setIsOpen(false)
   };
 
   const toggleMenu = () => {

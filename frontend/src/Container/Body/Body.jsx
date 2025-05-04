@@ -5,12 +5,15 @@ import ReactAudioPlayer from 'react-audio-player';
 import { FaPlay, FaPause } from "react-icons/fa";
 import { GiNextButton, GiPreviousButton  } from "react-icons/gi";
 import { ImLoop } from "react-icons/im";
+import { Triangle } from 'react-loader-spinner'
+import disk from '../../assets/disk.png'
 
 
 const Body = ({ searchQuery }) => {
   const [data, setData]= useState([]);
   const [filteredData, setFilteredData]= useState([]); // to store filtered songs
   const [audioUrl, setAudioUrl] = useState(null); // State to hold the audio URL
+  const [currentImage, setCurrentImage] = useState(null); // State to hold the current image
   const audioPlayerRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false); // State to manage play/pause
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -65,7 +68,6 @@ const Body = ({ searchQuery }) => {
       `
         )
         const combinedData = [...oldClientData, ...clientData];
-      
         // Set the combined data to state
         const sortedData = combinedData.sort((a, b) => {
           if (a.title && b.title) {
@@ -79,7 +81,7 @@ const Body = ({ searchQuery }) => {
         setFilteredData(sortedData);
     
         // Set the initial audio URL (if any)
-        setAudioUrl(sortedData[0]?.file?.asset?.url);
+        // setAudioUrl(sortedData[0]?.file?.asset?.url);
       };
     
       fetchData().catch((error) => {
@@ -101,17 +103,19 @@ const Body = ({ searchQuery }) => {
     }
   }, [searchQuery, data]);
 
-  const handlePlay = (url, index) => {
+  const handlePlay = (url, index, img) => {
     setAudioUrl(url);
     setCurrentIndex(index);
+    setCurrentImage(img); // Set the current image
     setIsPlaying(true); // Mark it as playing
   };
 
   const handleAudioCanPlay = () => {
-    if (audioPlayerRef.current) {
+    if (audioPlayerRef.current && isPlaying) {
       audioPlayerRef.current.audioEl.current.play();
     }
   };
+  
 
   const togglePlayPause = () => {
     
@@ -127,15 +131,17 @@ const Body = ({ searchQuery }) => {
   };
 
   const handleNext = () => {
-    if (currentIndex + 1 < data.length) {
+    if (currentIndex + 1 < filteredData.length) {
       const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
-      setAudioUrl(data[nextIndex]?.file?.asset?.url);
+      setAudioUrl(filteredData[nextIndex]?.file?.asset?.url);
+      setCurrentImage(filteredData[nextIndex]?.audioimg?.asset?.url); // Set the next image
       setIsPlaying(true);
     } else {
       // If last song, start from the beginning
       setCurrentIndex(0);
-      setAudioUrl(data[0]?.file?.asset?.url);
+      setAudioUrl(filteredData[0]?.file?.asset?.url);
+      setCurrentImage(filteredData[0]?.audioimg?.asset?.url); // Set the first image
       setIsPlaying(true);
     }
   };
@@ -144,7 +150,8 @@ const Body = ({ searchQuery }) => {
     if (currentIndex - 1 >= 0) {
       const prevIndex = currentIndex - 1;
       setCurrentIndex(prevIndex);
-      setAudioUrl(data[prevIndex]?.file?.asset?.url);
+      setAudioUrl(filteredData[prevIndex]?.file?.asset?.url);
+      setCurrentImage(filteredData[prevIndex]?.audioimg?.asset?.url); // Set the previous image
       setIsPlaying(true);
     }
   };
@@ -183,6 +190,20 @@ const Body = ({ searchQuery }) => {
   return (
     <div className="p-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
 
+      {filteredData.length === 0 && (
+        <div className="loader flex justify-center items-center h-[60vh] w-screen">
+        <Triangle
+        visible={true}
+        height="100"
+        width="100"
+        color="#2f3f78"
+        ariaLabel="triangle-loading"
+        wrapperStyle={{}}
+        wrapperClass=""
+        />
+        </div>
+      )}
+
 <ReactAudioPlayer
             src={audioUrl}
             controls
@@ -211,7 +232,7 @@ const Body = ({ searchQuery }) => {
             }}
       />
       {filteredData.map((item, index) => (
-        <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300" onClick={() => handlePlay(item.file?.asset?.url, index)}>
+        <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300" onClick={() => handlePlay(item.file?.asset?.url, index, item.audioimg?.asset?.url)}>
           <span className='box cursor-pointer'>
           <img src={item.audioimg?.asset?.url} alt={item.title} className="w-full h-[200px] object-cover" />
           <div className="p-4">
@@ -234,7 +255,12 @@ const Body = ({ searchQuery }) => {
             <FaPlay className="text-white text-2xl m-4 cursor-pointer" onClick={togglePlayPause} />
           )}
           <ImLoop className={` ${isLooping ? "text-[#26ff8f]" : "text-[#fff]"} text-2xl m-4 cursor-pointer`} onClick={handleLoop} />
+          
           <GiNextButton className="text-white text-2xl m-4 cursor-pointer" onClick={handleNext} />
+          <img
+            src={currentImage || disk}
+            className={`w-[2rem] aspect-square ml-2 object-cover rounded-full ${isPlaying ? "animate-spin" : ""}`}
+          />
         
         </div>
         <div className="flex items-center justify-between px-4 ">
