@@ -33,7 +33,7 @@ const Navbar = () => {
           {/* <img src={sanity[0]?.imageL?.asset?.url} alt="logo" className='md:w-[200px] w-[100px]' /> */}
         </div>
         <div className="navright md:h-[80px] md:w-[80px] h-[40px] w-[40px] flex justify-center items-center overflow-hidden rounded-[50%] object-cover">
-          <span>
+          <span onClick={() => navigate(`/profile`)}>
             <img src={sanity[0]?.imageR?.asset?.url} alt="" className='cursor-pointer' />
           </span>
         </div>
