@@ -5,7 +5,7 @@ import { auth, db } from "../../lib/firebase"; // ✅ Adjust path based on your 
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState(null); 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

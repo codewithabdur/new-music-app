@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FaSearch, FaTimes } from "react-icons/fa";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../../lib/firebase"; 
 
 const Sidebar = ({ setSearchQuery }) => {
   const [isOpen, setIsOpen] = useState(false); // true = sidebar open
@@ -19,11 +20,32 @@ const Sidebar = ({ setSearchQuery }) => {
     setIsOpen(!isOpen);
   };
 
+    const handleLogout = async () => {
+  try {
+    await auth.signOut();
+    navigate("/login");
+  } catch (error) {
+    console.error("Error during logout:", error);
+  }
+};
+
+
+  const all  = () =>{
+    setLocalSearch("all");
+  setSearchQuery("all");
+    submit()
+     setLocalSearch("");
+       setSearchQuery("");
+    setIsOpen(false);
+  }
 
   const playlist  = () =>{
     setLocalSearch("My Playlist");
   setSearchQuery("My Playlist");
     submit()
+     setLocalSearch("");
+       setSearchQuery("");
+    setIsOpen(false);
   }
   return (
     <>
@@ -68,9 +90,9 @@ const Sidebar = ({ setSearchQuery }) => {
               <ul className="flex flex-col gap-8 items-center">
                 <li
                   className="text-[#fff] text-[20px] cursor-pointer"
-                  onClick={() => navigate(`/profile`)}
+                  onClick={all}
                 >
-                  Profile
+                  All Songs
                 </li>
                 <li
                   className="text-[#fff] text-[20px] cursor-pointer"
@@ -78,10 +100,16 @@ const Sidebar = ({ setSearchQuery }) => {
                 >
                   My Playlist
                 </li>
-                <li className="text-[#fff] text-[20px] cursor-pointer">
+                <li className="text-[#fff] text-[20px] cursor-pointer" onClick={() => navigate(`/setting`)}>
                   Settings
                 </li>
-                <li className="text-[#fff] text-[20px] cursor-pointer">
+                  <li
+                  className="text-[#fff] text-[20px] cursor-pointer"
+                  onClick={() => navigate(`/profile`)}
+                >
+                  Profile
+                </li>
+                <li className="text-[#fff] text-[20px] cursor-pointer" onClick={handleLogout}>
                   Logout
                 </li>
               </ul>

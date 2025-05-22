@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../lib/firebase"; // 🔁 Adjust this path if needed
+import { setPersistence, browserLocalPersistence,  signInWithEmailAndPassword } from "firebase/auth";
 
 const Login= () => {
   const navigate = useNavigate();
@@ -15,11 +15,22 @@ const Login= () => {
     setError("");
     setLoading(true);
     try {
+      await setPersistence(auth, browserLocalPersistence); // 👈 Ensures user stays logged in
       await signInWithEmailAndPassword(auth, email, password);
       setLoading(false);
       navigate("/"); // ✅ Redirect after successful login
     } catch (err) {
-      setError(err.message);
+      const rawCode = err.code || ""; // e.g., "auth/invalid-credential"
+  const friendlyMessage = rawCode
+    .replace("auth/", "")         // Remove "auth/"
+    .replace(/-/g, " ")           // Replace dashes with spaces
+    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize words
+
+  setError(friendlyMessage); // e.g., "Invalid Credential"
+      setLoading(false);
+      setTimeout(( )=> {
+        setError("");
+      },3000)
     }
   };
 

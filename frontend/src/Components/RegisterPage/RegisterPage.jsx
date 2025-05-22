@@ -65,7 +65,7 @@ const RegisterPage = () => {
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -114,7 +114,7 @@ const RegisterPage = () => {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={isLoading}
           className="w-full bg-blue-600 hover:bg-blue-700 transition cursor-pointer text-white font-semibold py-2 px-4 rounded-lg"
         >
           {isLoading ? "Registering..." : "Register"}
