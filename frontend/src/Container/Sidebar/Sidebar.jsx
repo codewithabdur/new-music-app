@@ -1,13 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaSearch, FaTimes } from "react-icons/fa";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../../lib/firebase"; 
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../../lib/firebase"; // ✅ Adjust path based on your folder structure
+import { onAuthStateChanged } from "firebase/auth";
 
 const Sidebar = ({ setSearchQuery }) => {
   const [isOpen, setIsOpen] = useState(false); // true = sidebar open
   const [localSearch, setLocalSearch] = useState("");
   const navigate = useNavigate();
+  const [userData, setUserData] = useState(null); 
+  const [loading, setLoading] = useState(true);
 
   const submit = (e) => {
     e.preventDefault();
@@ -47,6 +51,42 @@ const Sidebar = ({ setSearchQuery }) => {
        setSearchQuery("");
     setIsOpen(false);
   }
+
+   const fetchUserData = async () => {
+      try {
+        const currentUser = auth.currentUser;
+
+        if (!currentUser) {
+          console.warn("User not authenticated");
+          navigate("/login"); // or show a message
+          return;
+        }
+
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          setUserData(userSnap.data());
+        } else {
+          console.error("No such user in Firestore");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+        useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+          if (user) {
+             await fetchUserData();
+          }
+        });
+    
+        return () => unsubscribe();
+      }, []);
+    
   return (
     <>
       <div className="sidebar fixed top-0 left-0 bottom-0  z-[150]">
@@ -103,12 +143,12 @@ const Sidebar = ({ setSearchQuery }) => {
                 <li className="text-[#fff] text-[20px] cursor-pointer" onClick={() => navigate(`/setting`)}>
                   Settings
                 </li>
-                  <li
+                  {userData && (<li
                   className="text-[#fff] text-[20px] cursor-pointer"
-                  onClick={() => navigate(`/profile`)}
+                  onClick={() => navigate(`/profile/${userData.userName.replace(/\s+/g, "-")}`)}
                 >
                   Profile
-                </li>
+                </li>)}
                 <li className="text-[#fff] text-[20px] cursor-pointer" onClick={handleLogout}>
                   Logout
                 </li>

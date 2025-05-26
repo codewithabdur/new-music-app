@@ -3,6 +3,7 @@ import oldclient from '../../lib/oldclient'
 import { useNavigate } from 'react-router-dom'
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase"; // ✅ Adjust path based on your folder structure
+import { onAuthStateChanged } from "firebase/auth";
 
 const Navbar = () => {
   const [sanity, setSanity] = useState([])
@@ -10,7 +11,6 @@ const Navbar = () => {
   const [userData, setUserData] = useState(null);
 
 
-   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const currentUser = auth.currentUser;
@@ -35,9 +35,19 @@ const Navbar = () => {
       }
     };
 
-    fetchUserData();
-  }, [navigate]);
+   
 
+
+  
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+         await fetchUserData();
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() =>{
     oldclient.fetch(`*[_type == "nav"]{
@@ -66,9 +76,9 @@ const Navbar = () => {
           {/* <img src={sanity[0]?.imageL?.asset?.url} alt="logo" className='md:w-[200px] w-[100px]' /> */}
         </div>
         <div className="navright md:h-[80px] md:w-[80px] h-[40px] w-[40px] flex justify-center items-center overflow-hidden rounded-[50%] object-cover">
-          <span onClick={() => navigate(`/profile`)}>
+          {userData && (<span onClick={() => navigate(`/profile/${userData.userName.replace(/\s+/g, "-")}`)}>
             <img src={userData?.image ? userData?.image : sanity[0]?.imageR?.asset?.url} alt="" className='cursor-pointer' />
-          </span>
+          </span>)}
         </div>
       </div>
     </div>

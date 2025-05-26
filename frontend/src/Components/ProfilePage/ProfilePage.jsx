@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase"; // ✅ Adjust path based on your folder structure
+import { onAuthStateChanged } from "firebase/auth";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null); 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
     const fetchUserData = async () => {
       try {
         const currentUser = auth.currentUser;
@@ -34,8 +34,17 @@ const ProfilePage = () => {
       }
     };
 
-    fetchUserData();
-  }, [navigate]);
+
+
+    useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+         await fetchUserData();
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
 
   const handleLogout = async () => {
